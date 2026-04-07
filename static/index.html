@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- ── SEO ──────────────────────────────────────────── -->
+  <title>World Population Counter — Live Earth Population</title>
+  <meta name="description"
+        content="See the current world population in real time. Watch Earth's population count update live, second by second, based on UN demographic data." />
+  <meta name="keywords"
+        content="world population, real-time population counter, earth population, live population tracker" />
+  <meta name="robots" content="index, follow" />
+
+  <!-- Open Graph -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:title"       content="World Population Counter — Live Earth Population" />
+  <meta property="og:description" content="Watch the world population grow in real time. Live counter based on UN World Population Prospects 2024." />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:title"       content="World Population Counter — Live Earth Population" />
+  <meta name="twitter:description" content="Watch the world population grow in real time." />
+
+  <!-- ── Favicon ───────────────────────────────────────── -->
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+
+  <!-- ── Google Fonts ──────────────────────────────────── -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+
+  <!-- ── Three.js import map (must precede module scripts) -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js"
+    }
+  }
+  </script>
+
+  <!-- ── Stylesheets ────────────────────────────────────── -->
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/navbar.css" />
+  <link rel="stylesheet" href="css/hero.css" />
+  <link rel="stylesheet" href="css/counter.css" />
+  <link rel="stylesheet" href="css/selector.css" />
+  <link rel="stylesheet" href="css/stats.css" />
+  <link rel="stylesheet" href="css/info.css" />
+  <link rel="stylesheet" href="css/space.css" />
+  <link rel="stylesheet" href="css/footer.css" />
+</head>
+
+<body>
+
+  <!-- ════════════════════════════════════════════════════
+       NAVBAR
+  ════════════════════════════════════════════════════════ -->
+  <nav id="navbar" aria-label="Main navigation">
+    <div class="nav-inner">
+
+      <!-- Logo -->
+      <a href="#hero" class="nav-logo" aria-label="EarthLive – home">
+        <span class="nav-logo-icon">
+          <span class="nav-logo-glow" aria-hidden="true"></span>
+          <svg class="nav-logo-svg" width="32" height="32" viewBox="0 0 32 32"
+               fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="16" cy="16" r="13" stroke="#3b82f6" stroke-width="1.5"/>
+            <circle cx="16" cy="16" r="7"  stroke="#3b82f6" stroke-width="1"
+                    stroke-dasharray="3 2"/>
+            <circle cx="16" cy="16" r="3"  fill="#3b82f6"/>
+          </svg>
+        </span>
+        <span class="nav-logo-text">Earth<em>Live</em></span>
+      </a>
+
+      <!-- Centre links -->
+      <ul class="nav-links" role="list">
+        <li><a href="#hero">Overview</a></li>
+        <li><a href="#stats">Data</a></li>
+        <li><a href="#space">In Space</a></li>
+        <li><a href="#footer">About</a></li>
+      </ul>
+
+      <!-- CTA -->
+      <a href="#stats" class="nav-cta">
+        Live Data
+        <span class="nav-cta-dot pulse-dot" aria-hidden="true"></span>
+      </a>
+
+    </div>
+  </nav>
+
+
+  <!-- ════════════════════════════════════════════════════
+       HERO
+  ════════════════════════════════════════════════════════ -->
+  <section id="hero" aria-label="Live world population counter">
+
+    <!-- Globe renders here -->
+    <canvas id="globe-canvas" aria-hidden="true"></canvas>
+
+    <!-- Atmospheric overlay -->
+    <div id="hero-glow"  aria-hidden="true"></div>
+    <div id="hero-fade"  aria-hidden="true"></div>
+
+    <!-- Copy -->
+    <div id="hero-content" class="fade-up">
+
+      <!-- Country / planet selector -->
+      <div id="country-selector" role="combobox" aria-label="Select region"></div>
+
+      <p class="hero-label">Currently, there are</p>
+
+      <div id="counter"
+           role="status"
+           aria-live="polite"
+           aria-label="Current population, updating live">
+        <!-- Digit reels injected by counter.js -->
+      </div>
+
+      <p class="hero-sublabel" id="hero-sublabel">people on this planet</p>
+
+      <div class="hero-badge glass">
+        <span class="hero-badge-dot pulse-dot" aria-hidden="true"></span>
+        Updating live · Based on UN 2024 data
+      </div>
+    </div>
+
+    <!-- Scroll hint -->
+    <div id="scroll-hint" aria-hidden="true">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+           xmlns="http://www.w3.org/2000/svg" stroke="currentColor"
+           stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="m19 9-7 7-7-7"/>
+      </svg>
+    </div>
+
+  </section>
+
+
+  <!-- ════════════════════════════════════════════════════
+       STATS
+  ════════════════════════════════════════════════════════ -->
+  <section id="stats" aria-label="Global population statistics">
+
+    <div class="stats-divider-wrap">
+      <div class="divider"></div>
+    </div>
+
+    <div class="stats-grid">
+
+      <div class="stat-item fade-up">
+        <p id="stat-births" class="stat-value stat-value--green">4.5</p>
+        <p class="stat-label">Births per second</p>
+      </div>
+
+      <div class="stat-item fade-up" style="transition-delay:.1s">
+        <p id="stat-deaths" class="stat-value stat-value--red">2.0</p>
+        <p class="stat-label">Deaths per second</p>
+      </div>
+
+      <div class="stat-item fade-up" style="transition-delay:.2s">
+        <p class="stat-value stat-value--blue">~73.5M</p>
+        <p class="stat-label">Net growth per year</p>
+      </div>
+
+      <div class="stat-item fade-up" style="transition-delay:.3s">
+        <p class="stat-value stat-value--violet">195</p>
+        <p class="stat-label">Countries tracked</p>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════════════
+       INFO
+  ════════════════════════════════════════════════════════ -->
+  <section id="info" aria-label="Methodology">
+
+    <h2 class="info-heading fade-up">How is this calculated?</h2>
+
+    <p class="info-body fade-up" style="transition-delay:.06s">
+      This counter is based on the
+      <em>UN World Population Prospects 2024</em>.
+      Using the midyear 2024 estimate of <strong>8.16 billion</strong>
+      as a baseline, the counter advances at a net rate of approximately
+      <strong>2.33 people per second</strong> — reflecting ~4.5 births
+      minus ~2.0 deaths every second, globally.
+    </p>
+
+    <div class="info-cards">
+
+      <div class="info-card info-card--green lift fade-up" style="transition-delay:.12s">
+        <p class="info-card-value">~4.5</p>
+        <p class="info-card-label">Births / second</p>
+      </div>
+
+      <div class="info-card info-card--red lift fade-up" style="transition-delay:.2s">
+        <p class="info-card-value">~2.0</p>
+        <p class="info-card-label">Deaths / second</p>
+      </div>
+
+      <div class="info-card info-card--blue lift fade-up" style="transition-delay:.28s">
+        <p class="info-card-value">~2.5</p>
+        <p class="info-card-label">Net gain / second</p>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════════════
+       PEOPLE IN SPACE
+  ════════════════════════════════════════════════════════ -->
+  <section id="space" aria-label="People currently in space">
+    <div class="space-inner">
+
+      <!-- Header -->
+      <div class="space-header fade-up">
+        <div class="space-header-tag">
+          <span class="space-header-tag-dot pulse-dot" aria-hidden="true"></span>
+          Live from orbit
+        </div>
+        <h2 class="space-heading">Currently in Space</h2>
+        <p class="space-subheading">
+          Live crew data via
+          <a href="https://thespacedevs.com/" target="_blank" rel="noopener noreferrer">
+            The Space Devs API
+          </a>
+        </p>
+      </div>
+
+      <!-- Big count -->
+      <div class="space-count-wrap fade-up" style="transition-delay:.08s">
+        <div class="space-count-number" id="space-number">—</div>
+        <p class="space-count-label" id="space-count-label">people orbiting Earth right now</p>
+      </div>
+
+      <!-- Craft cards (injected by space.js) -->
+      <div id="space-crafts" class="space-crafts fade-up" style="transition-delay:.16s">
+        <!-- Loading state shown until JS populates -->
+        <div class="space-loading">
+          <div class="space-spinner"></div>
+          Fetching live data…
+        </div>
+      </div>
+
+      <!-- Meta / refresh -->
+      <div class="space-meta fade-up" style="transition-delay:.22s">
+        <span>Last updated: <span id="space-updated">—</span></span>
+        <span class="space-meta-dot">·</span>
+        <span>Refreshes every 5 min</span>
+        <span class="space-meta-dot">·</span>
+        <button id="space-refresh-btn" class="space-refresh-btn" aria-label="Refresh space data">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+            <path d="M21 3v5h-5"/>
+            <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+            <path d="M8 16H3v5"/>
+          </svg>
+          Refresh
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════════════
+       FOOTER
+  ════════════════════════════════════════════════════════ -->
+  <footer id="footer">
+    <div class="footer-inner">
+
+      <!-- Brand -->
+      <div class="footer-brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+             xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
+             style="opacity:.55">
+          <circle cx="12" cy="12" r="10" stroke="#3b82f6" stroke-width="1.2"/>
+          <circle cx="12" cy="12" r="5"  stroke="#3b82f6" stroke-width="0.8"
+                  stroke-dasharray="2 1.5"/>
+          <circle cx="12" cy="12" r="2"  fill="#3b82f6"/>
+        </svg>
+        <span>&copy;&nbsp;<span id="footer-year"></span>
+          &nbsp;<span class="footer-brand-name">EarthLive</span>
+        </span>
+      </div>
+
+      <!-- Data credit -->
+      <p class="footer-credit">
+        Population: <a href="https://population.un.org/wpp/" target="_blank" rel="noopener noreferrer">UN WPP&nbsp;2024</a>
+        &nbsp;·&nbsp;
+        Space crew: <a href="https://thespacedevs.com/" target="_blank" rel="noopener noreferrer">The&nbsp;Space&nbsp;Devs</a>
+      </p>
+
+      <!-- Disclaimer -->
+      <p class="footer-disclaimer">
+        Figures are estimates. Real-time simulation based on statistical
+        growth rates.
+      </p>
+
+    </div>
+  </footer>
+
+
+  <!-- ════════════════════════════════════════════════════
+       JS entry point  (type=module picks up the importmap)
+  ════════════════════════════════════════════════════════ -->
+  <script type="module" src="js/main.js"></script>
+
+</body>
+</html>

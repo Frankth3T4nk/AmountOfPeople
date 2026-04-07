@@ -1,0 +1,88 @@
+/* ═══════════════════════════════════════════════════════════
+   COUNTER.CSS  —  odometer / clock-style digit reel
+   ═══════════════════════════════════════════════════════════
+
+   Structure built by counter.js:
+
+     #counter
+       .digit-wrapper          ← clips to exactly 1 digit tall
+         .digit-reel           ← scrolls vertically (0→9→0…)
+           .digit-item × 20   ← 0 1 2 3 4 5 6 7 8 9  (×2 for wrap)
+       .digit-sep              ← comma / period
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Outer container ────────────────────────────────────── */
+#counter {
+  /* Size & layout */
+  font-size:   clamp(2.6rem, 8vw, 6.5rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.025em;
+
+  display: flex;
+  align-items: flex-end;      /* align bottoms so glyphs sit on same baseline */
+  justify-content: center;
+  flex-wrap: nowrap;
+
+  /* Glow: use filter so it works through overflow:hidden children */
+  filter:
+    drop-shadow(0 0 22px rgba(59, 130, 246, 0.75))
+    drop-shadow(0 0 55px rgba(59, 130, 246, 0.35));
+}
+
+/* ── Clip window — shows exactly ONE digit tall ─────────── */
+.digit-wrapper {
+  display: inline-block;
+  overflow: hidden;
+
+  /*
+     height must equal the rendered line-height of a single digit.
+     With line-height:1 the rendered height == font-size == 1em
+     relative to #counter's font-size.
+  */
+  height: 1em;
+  line-height: 1em;
+
+  /* Align bottoms with comma separators */
+  vertical-align: bottom;
+}
+
+/* ── The scrolling reel ─────────────────────────────────── */
+.digit-reel {
+  display: flex;
+  flex-direction: column;
+
+  /* Rolling animation — matches JS snap timing */
+  transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+/* Disable transition instantly (used in JS for snap-back) */
+.digit-reel.no-transition {
+  transition: none !important;
+}
+
+/* ── Individual digit cell ──────────────────────────────── */
+.digit-item {
+  display: block;
+  height: 1em;
+  line-height: 1em;
+  text-align: center;
+
+  /* Colour: cool white fading to icy blue */
+  color: #e2e8f0;
+}
+
+/* ── Comma / period separator ───────────────────────────── */
+.digit-sep {
+  display: inline-block;
+  height: 1em;
+  line-height: 1em;
+  vertical-align: bottom;
+
+  color: rgba(96, 165, 250, 0.45);
+  margin: 0 0.04em;
+
+  /* Separators never animate */
+  user-select: none;
+}

@@ -1,0 +1,99 @@
+/* ═══════════════════════════════════════════════════════════
+   MAIN.CSS  —  design tokens · base reset · shared utilities
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Design tokens ─────────────────────────────────────── */
+:root {
+  --bg:              #020617;
+  --bg-card:         rgba(10, 22, 40, 0.75);
+  --accent:          #3b82f6;
+  --accent-light:    #60a5fa;
+  --accent-glow:     rgba(59, 130, 246, 0.45);
+  --text:            #f1f5f9;
+  --muted:           #94a3b8;
+  --border:          rgba(59, 130, 246, 0.14);
+
+  --font:            'Inter', system-ui, sans-serif;
+
+  --ease-out-expo:   cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-spring: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --transition-base: 200ms ease;
+  --radius-pill:     9999px;
+}
+
+/* ── Base reset ────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Scrollbar ─────────────────────────────────────────── */
+::-webkit-scrollbar        { width: 5px; }
+::-webkit-scrollbar-track  { background: var(--bg); }
+::-webkit-scrollbar-thumb  { background: var(--accent); border-radius: 3px; }
+::selection                { background: var(--accent-glow); color: #fff; }
+
+/* ── Shared utility classes ────────────────────────────── */
+
+/* Glassmorphism card / surface */
+.glass {
+  background: var(--bg-card);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--border);
+}
+
+/* Horizontal gradient rule */
+.divider {
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(59, 130, 246, 0.28),
+    transparent
+  );
+}
+
+/* ── Shared animations ─────────────────────────────────── */
+
+/* Generic slow pulse for indicator dots */
+@keyframes pulseDot {
+  0%, 100% { opacity: 1;   transform: scale(1);    }
+  50%       { opacity: 0.5; transform: scale(0.75); }
+}
+.pulse-dot { animation: pulseDot 2s ease-in-out infinite; }
+
+/* Scroll-reveal: elements start hidden, gain .visible via JS */
+.fade-up {
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity  0.85s var(--ease-out-spring),
+    transform 0.85s var(--ease-out-spring);
+}
+.fade-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Hover-lift for cards */
+.lift {
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+.lift:hover { transform: translateY(-3px); }

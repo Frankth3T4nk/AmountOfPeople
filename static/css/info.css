@@ -1,0 +1,61 @@
+/* ═══════════════════════════════════════════════════════════
+   INFO.CSS  —  "How is this calculated?" section
+   ═══════════════════════════════════════════════════════════ */
+
+#info {
+  position: relative;
+  z-index: 10;
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 4rem 1.5rem 5rem;
+  text-align: center;
+}
+
+.info-heading {
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 1.25rem;
+}
+
+.info-body {
+  font-size: clamp(0.95rem, 1.6vw, 1.1rem);
+  line-height: 1.75;
+  color: #64748b;
+}
+
+.info-body strong { color: #fff; font-weight: 600; }
+.info-body em     { font-style: normal; color: var(--accent-light); font-weight: 500; }
+
+/* ── Three-card grid ────────────────────────────────────── */
+.info-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-top: 2.5rem;
+}
+
+@media (min-width: 480px) {
+  .info-cards { grid-template-columns: repeat(3, 1fr); }
+}
+
+.info-card {
+  border-radius: 0.85rem;
+  padding: 1.4rem;
+}
+
+.info-card--green  { border: 1px solid rgba(52, 211, 153, 0.25); background: rgba(52, 211, 153, 0.05); }
+.info-card--red    { border: 1px solid rgba(248, 113, 113, 0.25); background: rgba(248, 113, 113, 0.05); }
+.info-card--blue   { border: 1px solid rgba(59, 130, 246, 0.25); background: rgba(59, 130, 246, 0.05); }
+
+.info-card-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.info-card-label {
+  margin-top: 0.35rem;
+  font-size: 0.8rem;
+  color: #64748b;
+}

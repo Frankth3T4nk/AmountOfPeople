@@ -1,0 +1,53 @@
+/* ═══════════════════════════════════════════════════════════
+   STATS.CSS
+   ═══════════════════════════════════════════════════════════ */
+
+#stats {
+  position: relative;
+  z-index: 10;
+  padding-bottom: 2.5rem;
+}
+
+.stats-divider-wrap {
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.stats-grid {
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  text-align: center;
+}
+
+@media (min-width: 640px) {
+  .stats-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+.stat-item {}
+
+.stat-value {
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.stat-value--green  { color: #34d399; }
+.stat-value--red    { color: #f87171; }
+.stat-value--blue   { color: var(--accent-light); }
+.stat-value--violet { color: #a78bfa; }
+
+.stat-label {
+  margin-top: 0.3rem;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #475569;
+}

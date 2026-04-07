@@ -1,0 +1,119 @@
+/* ═══════════════════════════════════════════════════════════
+   NAVBAR.CSS
+   ═══════════════════════════════════════════════════════════ */
+
+#navbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 50;
+  padding: 1.35rem 0;
+  transition: padding 0.4s ease, box-shadow 0.4s ease;
+}
+
+#navbar.scrolled {
+  padding: 0.7rem 0;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+}
+
+.nav-inner {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ── Logo ─────────────────────────────────────────── */
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+}
+
+.nav-logo-icon {
+  position: relative;
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+}
+
+.nav-logo-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.18;
+  filter: blur(4px);
+  transition: opacity var(--transition-base);
+}
+.nav-logo:hover .nav-logo-glow { opacity: 0.4; }
+
+.nav-logo-svg { position: relative; display: block; }
+
+.nav-logo-text {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+.nav-logo-text em {
+  font-style: normal;
+  color: var(--accent-light);
+}
+
+/* ── Centre nav links ─────────────────────────────── */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  list-style: none;
+}
+
+@media (max-width: 767px) { .nav-links { display: none; } }
+
+.nav-links a {
+  display: block;
+  padding: 0.45rem 1rem;
+  font-size: 0.875rem;
+  color: #94a3b8;
+  text-decoration: none;
+  border-radius: var(--radius-pill);
+  transition: color var(--transition-base), background var(--transition-base);
+}
+.nav-links a:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ── CTA button ───────────────────────────────────── */
+.nav-cta {
+  display: none;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  box-shadow: 0 0 20px var(--accent-glow);
+  transition: background var(--transition-base),
+              box-shadow var(--transition-base),
+              transform var(--transition-base);
+}
+.nav-cta:hover {
+  background: #2563eb;
+  box-shadow: 0 0 32px rgba(59, 130, 246, 0.6);
+  transform: scale(1.04);
+}
+.nav-cta-dot {
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 50%;
+  background: #fff;
+}
+
+@media (min-width: 768px) { .nav-cta { display: inline-flex; } }

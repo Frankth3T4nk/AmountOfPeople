@@ -1,0 +1,111 @@
+/* ═══════════════════════════════════════════════════════════
+   HERO.CSS
+   ═══════════════════════════════════════════════════════════ */
+
+#hero {
+  position: relative;
+  width: 100%;
+  min-height: 100svh;        /* use svh for mobile address-bar awareness */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Three.js canvas fills the whole hero behind everything */
+#globe-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Radial blue glow on the globe */
+#hero-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 78% 58% at 50% 62%,
+    rgba(59, 130, 246, 0.09) 0%,
+    transparent 68%
+  );
+}
+
+/* Bottom fade — hero bleeds into the stats section */
+#hero-fade {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 13rem;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent 0%, #020617 100%);
+}
+
+/* Counter + label wrapper */
+#hero-content {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 56rem;
+  padding: 0 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* "Currently, there are" label */
+.hero-label {
+  font-size: clamp(0.7rem, 1.5vw, 0.9rem);
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #64748b;
+  margin-bottom: 1.5rem;
+}
+
+/* "people on this planet" label */
+.hero-sublabel {
+  font-size: clamp(1rem, 2.5vw, 1.4rem);
+  font-weight: 300;
+  color: #cbd5e1;
+  letter-spacing: 0.04em;
+  margin-top: 1.5rem;
+}
+
+/* Live data badge */
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+  padding: 0.5rem 1.1rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+.hero-badge-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: #34d399; /* emerald */
+  flex-shrink: 0;
+}
+
+/* Scroll-hint chevron */
+#scroll-hint {
+  position: absolute;
+  bottom: 2.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  opacity: 0.35;
+  color: #94a3b8;
+}
+@keyframes hintBounce {
+  0%, 100% { transform: translateX(-50%) translateY(0);   }
+  50%       { transform: translateX(-50%) translateY(9px); }
+}
+#scroll-hint { animation: hintBounce 2.2s ease-in-out infinite; }

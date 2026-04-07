@@ -1,0 +1,61 @@
+/* ═══════════════════════════════════════════════════════════
+   FOOTER.CSS
+   ═══════════════════════════════════════════════════════════ */
+
+#footer {
+  position: relative;
+  z-index: 10;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  margin-top: 1rem;
+}
+
+.footer-inner {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  text-align: center;
+  font-size: 0.825rem;
+  color: #475569;
+}
+
+@media (min-width: 768px) {
+  .footer-inner {
+    flex-direction: row;
+    justify-content: space-between;
+    text-align: left;
+  }
+}
+
+/* Brand block */
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+.footer-brand-name { color: #94a3b8; font-weight: 500; }
+
+/* Credit text */
+.footer-credit { line-height: 1.6; }
+.footer-credit a {
+  color: var(--accent-light);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color var(--transition-base);
+}
+.footer-credit a:hover { color: #93c5fd; }
+
+/* Disclaimer */
+.footer-disclaimer {
+  font-size: 0.72rem;
+  color: #334155;
+  max-width: 18rem;
+}
+
+@media (min-width: 768px) {
+  .footer-disclaimer { text-align: right; }
+}

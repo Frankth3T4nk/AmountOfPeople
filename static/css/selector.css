@@ -1,0 +1,211 @@
+/* ═══════════════════════════════════════════════════════════
+   SELECTOR.CSS  —  searchable country picker, glass UI
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Wrapper ────────────────────────────────────────────── */
+#country-selector {
+  position: relative;
+  z-index: 30;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: stretch;
+  margin-bottom: 2rem;
+  width: clamp(220px, 60vw, 320px);
+}
+
+/* ── Trigger button ─────────────────────────────────────── */
+.sel-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  padding: 0.6rem 0.9rem 0.6rem 1rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(10, 22, 40, 0.55);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  color: #cbd5e1;
+  font-family: var(--font);
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background  0.2s ease,
+    box-shadow  0.2s ease,
+    color       0.2s ease;
+}
+
+.sel-trigger:hover,
+.sel--open .sel-trigger {
+  border-color: rgba(59, 130, 246, 0.45);
+  background: rgba(14, 28, 58, 0.72);
+  box-shadow: 0 0 22px rgba(59, 130, 246, 0.14), 0 4px 24px rgba(0,0,0,0.45);
+  color: #e2e8f0;
+}
+
+.sel-flag {
+  font-size: 1.15rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.sel-name {
+  flex: 1;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Animated chevron */
+.sel-chevron {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  color: #475569;
+  transition: transform 0.28s var(--ease-out-spring), color 0.2s ease;
+}
+.sel--open .sel-chevron {
+  transform: rotate(180deg);
+  color: var(--accent-light);
+}
+
+/* ── Dropdown panel ─────────────────────────────────────── */
+.sel-dropdown {
+  position: absolute;
+  top: calc(100% + 0.45rem);
+  left: 0;
+  right: 0;
+  z-index: 40;
+
+  background: rgba(6, 14, 32, 0.92);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 0.9rem;
+  box-shadow:
+    0 12px 50px rgba(0, 0, 0, 0.7),
+    0 0 0 1px rgba(255, 255, 255, 0.03),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+
+  /* Entrance animation */
+  animation: selFadeIn 0.2s var(--ease-out-spring) both;
+}
+
+@keyframes selFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ── Search row ─────────────────────────────────────────── */
+.sel-search-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.8rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sel-search-icon {
+  width: 0.85rem;
+  height: 0.85rem;
+  flex-shrink: 0;
+  color: #334155;
+}
+
+.sel-search {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #e2e8f0;
+  font-family: var(--font);
+  font-size: 0.82rem;
+  caret-color: var(--accent);
+}
+.sel-search::placeholder {
+  color: #1e293b;
+}
+
+/* ── Options list ───────────────────────────────────────── */
+.sel-list {
+  list-style: none;
+  max-height: 280px;
+  overflow-y: auto;
+  padding: 0.25rem 0;
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+.sel-list::-webkit-scrollbar        { width: 3px; }
+.sel-list::-webkit-scrollbar-track  { background: transparent; }
+.sel-list::-webkit-scrollbar-thumb  { background: rgba(59, 130, 246, 0.25); border-radius: 2px; }
+
+/* ── Option items ───────────────────────────────────────── */
+.sel-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.48rem 0.8rem;
+  font-size: 0.82rem;
+  color: #64748b;
+  cursor: pointer;
+  transition: background 0.1s ease, color 0.1s ease;
+  user-select: none;
+}
+
+.sel-item:hover {
+  background: rgba(59, 130, 246, 0.07);
+  color: #cbd5e1;
+}
+
+.sel-item--active {
+  color: #93c5fd;
+  background: rgba(59, 130, 246, 0.1);
+}
+
+/* "This Planet" item — slightly emphasised */
+.sel-item[data-code="__planet__"] {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  margin-bottom: 0.2rem;
+  padding-bottom: 0.6rem;
+  color: #94a3b8;
+}
+.sel-item[data-code="__planet__"]:hover { color: #e2e8f0; }
+
+.sel-item-flag {
+  font-size: 1rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.sel-item-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sel-check {
+  font-size: 0.72rem;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+/* Empty state */
+.sel-empty {
+  padding: 1rem 0.8rem;
+  font-size: 0.78rem;
+  color: #1e293b;
+  text-align: center;
+}
+.sel-empty em {
+  font-style: normal;
+  color: #334155;
+}
