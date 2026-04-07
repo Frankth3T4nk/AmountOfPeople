@@ -1,0 +1,273 @@
+/* ═══════════════════════════════════════════════════════════
+   SHUTTLE.CSS  —  Scroll-linked Space Shuttle launch animation
+   Triggered between the #info and #space sections.
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Scene: provides the scroll distance ───────────────── */
+#shuttle-scene {
+  position: relative;
+  height: 200vh;
+  overflow: hidden;
+  background: linear-gradient(
+    to bottom,
+    #020617 0%,
+    #03081c 40%,
+    #020617 100%
+  );
+}
+
+/* ── Sticky viewport: stays pinned while parent scrolls ── */
+#shuttle-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* ── Star field (fades in as shuttle rises) ─────────────── */
+#shuttle-stars {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(1px   1px   at  8%  12%, rgba(255,255,255,.90) 0%, transparent 100%),
+    radial-gradient(1px   1px   at 22%  35%, rgba(255,255,255,.75) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 38%   8%, rgba(255,255,255,.85) 0%, transparent 100%),
+    radial-gradient(1px   1px   at 53%  52%, rgba(255,255,255,.70) 0%, transparent 100%),
+    radial-gradient(1px   1px   at 67%  22%, rgba(255,255,255,.90) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 78%  65%, rgba(255,255,255,.80) 0%, transparent 100%),
+    radial-gradient(1px   1px   at 88%  42%, rgba(255,255,255,.60) 0%, transparent 100%),
+    radial-gradient(1px   1px   at 12%  78%, rgba(255,255,255,.80) 0%, transparent 100%),
+    radial-gradient(1px   1px   at 31%  60%, rgba(255,255,255,.55) 0%, transparent 100%),
+    radial-gradient(1px   1px   at 47%  88%, rgba(255,255,255,.70) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 62%  15%, rgba(255,255,255,.88) 0%, transparent 100%),
+    radial-gradient(1px   1px   at 84%  80%, rgba(255,255,255,.60) 0%, transparent 100%),
+    radial-gradient(1px   1px   at  5%  45%, rgba(255,255,255,.90) 0%, transparent 100%),
+    radial-gradient(1px   1px   at 73%  38%, rgba(200,220,255,.70) 0%, transparent 100%),
+    radial-gradient(1px   1px   at 42%  72%, rgba(255,255,255,.55) 0%, transparent 100%),
+    radial-gradient(1px   1px   at 91%  18%, rgba(255,255,255,.80) 0%, transparent 100%),
+    radial-gradient(1px   1px   at 16%  55%, rgba(255,255,255,.65) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 58%  42%, rgba(220,235,255,.75) 0%, transparent 100%),
+    radial-gradient(1px   1px   at 26%  90%, rgba(255,255,255,.50) 0%, transparent 100%),
+    radial-gradient(1px   1px   at 72%   5%, rgba(255,255,255,.85) 0%, transparent 100%);
+}
+
+/* ── Earth atmospheric glow at viewport bottom ──────────── */
+#shuttle-earth-glow {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 220%;
+  height: 45%;
+  background: radial-gradient(
+    ellipse at 50% 100%,
+    rgba(40, 120, 255, 0.25) 0%,
+    rgba(20,  80, 200, 0.12) 35%,
+    transparent              65%
+  );
+  pointer-events: none;
+}
+
+/* ── Shuttle wrapper: translated by JS each frame ───────── */
+#shuttle-wrapper {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 140px;
+  /* Initial position set here; JS overrides via style.transform */
+  transform: translate(-50%, 80vh);
+  will-change: transform;
+  /* Warm engine-glow drop shadow */
+  filter: drop-shadow(0 0 18px rgba(255, 150, 30, 0.22))
+          drop-shadow(0 2px 8px rgba(0, 0, 0, 0.55));
+}
+
+/* ── Shuttle SVG ────────────────────────────────────────── */
+#shuttle-svg {
+  display: block;
+  width: 140px;
+  height: auto;
+}
+
+/* ── Launch flame container ─────────────────────────────── */
+/*    Sits just below the engine nozzles in the wrapper.    */
+#shuttle-flame {
+  position: absolute;
+  /* Orbiter nozzles sit ~50px above bottom of 245px SVG */
+  bottom: 44px;
+  left: 50%;
+  width: 140px;
+  height: 190px;
+  /* Centre the container on the shuttle's x-axis */
+  margin-left: -70px;
+  transform-origin: center top;
+  will-change: transform, opacity;
+  transition: opacity 0.15s ease;
+}
+
+/* All flame layers share absolute positioning within the container */
+.flame-layer {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  border-radius: 40% 40% 65% 65%;
+  transform-origin: center top;
+}
+
+/* ─ Glow bloom (widest, most diffuse) ─ */
+.flame-glow {
+  width: 140px;
+  height: 110px;
+  margin-left: -70px;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at 50% 0%,
+    rgba(255, 180, 30, 0.58) 0%,
+    rgba(255,  90,  0, 0.30) 35%,
+    rgba(200,  40,  0, 0.10) 65%,
+    transparent              100%
+  );
+  animation: ssGlowPulse 0.28s ease-in-out infinite alternate;
+}
+
+/* ─ Left SRB plume ─ */
+.flame-srb-l {
+  width: 18px;
+  height: 100px;
+  margin-left: -67px; /* centres on left SRB nozzle (–58 px from stack centre) */
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 235, 80, 0.88) 0%,
+    rgba(255, 130, 10, 0.65) 40%,
+    rgba(220,  65,  0, 0.25) 80%,
+    transparent              100%
+  );
+  animation: ssFlameSRB 0.12s ease-in-out infinite alternate;
+}
+
+/* ─ Right SRB plume ─ */
+.flame-srb-r {
+  width: 18px;
+  height: 100px;
+  margin-left: 49px;  /* centres on right SRB nozzle (+58 px from stack centre) */
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 235, 80, 0.88) 0%,
+    rgba(255, 130, 10, 0.65) 40%,
+    rgba(220,  65,  0, 0.25) 80%,
+    transparent              100%
+  );
+  animation: ssFlameSRB 0.15s ease-in-out infinite alternate;
+}
+
+/* ─ Outer SSME plume ─ */
+.flame-outer {
+  width: 66px;
+  height: 155px;
+  margin-left: -33px;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 185, 12, 0.68) 0%,
+    rgba(255,  90,  0, 0.48) 35%,
+    rgba(200,  40,  0, 0.18) 70%,
+    transparent              100%
+  );
+  animation: ssFlameOuter 0.19s ease-in-out infinite alternate;
+}
+
+/* ─ Mid SSME plume ─ */
+.flame-mid {
+  width: 40px;
+  height: 120px;
+  margin-left: -20px;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 215, 45, 0.88) 0%,
+    rgba(255, 115,  0, 0.72) 40%,
+    rgba(220,  55,  0, 0.32) 80%,
+    transparent              100%
+  );
+  animation: ssFlameMid 0.14s ease-in-out infinite alternate;
+}
+
+/* ─ Core SSME plume (brightest) ─ */
+.flame-core {
+  width: 22px;
+  height: 80px;
+  margin-left: -11px;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 235, 1.00) 0%,
+    rgba(255, 245,  85, 0.96) 22%,
+    rgba(255, 165,  12, 0.82) 58%,
+    transparent               100%
+  );
+  animation: ssFlameCore 0.09s ease-in-out infinite alternate;
+}
+
+/* Flame animation keyframes */
+@keyframes ssFlameCore {
+  from { transform: scaleX(1.00) scaleY(1.00); }
+  to   { transform: scaleX(0.88) scaleY(1.09); }
+}
+@keyframes ssFlameMid {
+  from { transform: scaleX(1.00) scaleY(1.00); }
+  to   { transform: scaleX(1.08) scaleY(0.93); }
+}
+@keyframes ssFlameOuter {
+  from { transform: scaleX(0.94) scaleY(1.00); }
+  to   { transform: scaleX(1.06) scaleY(1.05); }
+}
+@keyframes ssFlameSRB {
+  from { transform: scaleX(0.85) scaleY(0.96); }
+  to   { transform: scaleX(1.15) scaleY(1.04); }
+}
+@keyframes ssGlowPulse {
+  from { transform: scale(0.90); opacity: 0.72; }
+  to   { transform: scale(1.10); opacity: 1.00; }
+}
+
+/* ── Exhaust trail ──────────────────────────────────────── */
+/*    JS sets top + height each frame; it traces the path.  */
+#shuttle-trail {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 155, 35, 0.55)  0%,
+    rgba(220, 115, 22, 0.32) 18%,
+    rgba(160,  92, 48, 0.14) 50%,
+    transparent              100%
+  );
+  border-radius: 3px;
+  pointer-events: none;
+  will-change: top, height, opacity;
+}
+
+/* ── Atmospheric shimmer halo ───────────────────────────── */
+/*    Follows shuttle position; JS sets top each frame.     */
+#shuttle-atmo {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 240px;
+  height: 240px;
+  background: radial-gradient(
+    ellipse,
+    rgba(255, 130, 20, 0.09)  0%,
+    transparent               60%
+  );
+  pointer-events: none;
+  will-change: top;
+  animation: ssAtmoFlicker 0.38s ease-in-out infinite alternate;
+}
+
+@keyframes ssAtmoFlicker {
+  from { opacity: 0.60; }
+  to   { opacity: 1.00; }
+}

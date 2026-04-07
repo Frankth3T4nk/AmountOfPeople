@@ -16,12 +16,14 @@ import { initSpace                           } from './space.js';
 import { initSelector                        } from './selector.js';
 import { getCountryCurrentPop                } from './countries.js';
 import { getCurrentPop as getWorldPop        } from './population.js';
+import { initShuttle                         } from './shuttle.js';
 
 /* ── Boot ───────────────────────────────────────────────── */
 initGlobe();
 initCounter();
 initUI();
 initSpace();
+initShuttle();
 
 /* ── Selector wires into globe + counter ────────────────── */
 initSelector(onCountryChange);
