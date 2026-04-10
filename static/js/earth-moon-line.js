@@ -72,7 +72,7 @@ export function initEarthMoonLine () {
   const BADGE_W = 184;
   const BADGE_H =  68;
   const MIN_T   = 0.02;   // keep clear of Earth
-  const MID_T   = 0.50;   // badge stops here (halfway)
+  const MID_T   = 0.65;   // badge stops here
 
   /* ── Build SVG overlay ───────────────────────────────────── */
   const svg = document.createElementNS(NS, 'svg');
@@ -82,31 +82,60 @@ export function initEarthMoonLine () {
     top:           '0',
     left:          '0',
     width:         '100%',
-    height:        '10000px',
     overflow:      'visible',
     pointerEvents: 'none',
     zIndex:        '20',
+    height:        '100px',   // updated dynamically in frame() to match real content
   });
 
-  /* ── Curved dashed path — white ─────────────────────────── */
+  /* ── Curved dashed path ─────────────────────────────────── */
   const path = el('path', {
     fill:              'none',
-    stroke:            'rgba(255,255,255,0.75)',
+    stroke:            '#94a3b8',
     'stroke-width':    '1.5',
     'stroke-dasharray':'5 11',
     opacity:           '0',
   });
   svg.appendChild(path);
 
-  /* ── Endpoint dot on moon ────────────────────────────────── */
-  const endDot = el('circle', {
-    r:    '6',
-    fill: 'rgba(255,255,255,0.90)',
-    stroke: 'rgba(255,255,255,0.40)',
-    'stroke-width': '4',
-    opacity: '0',
-  });
-  svg.appendChild(endDot);
+  /* ── Hit-indicator helper ─────────────────────────────────
+     Creates a target-ping: a small solid core dot + two
+     expanding/fading rings, offset in time so they pulse
+     continuously like a radar hit.                          */
+  function makeHitIndicator (color, delay1, delay2) {
+    const g = el('g', { opacity: '0' });
+
+    // Core dot — stays visible, very slight pulse
+    const core = el('circle', { r: '3', fill: color });
+    core.innerHTML = `
+      <animate attributeName="r"       values="2.5;3.5;2.5" dur="1.6s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"/>
+      <animate attributeName="opacity" values="0.9;1;0.9"   dur="1.6s" repeatCount="indefinite"/>`;
+
+    // Ring 1
+    const ring1 = el('circle', { r: '3', fill: 'none', stroke: color, 'stroke-width': '1.2' });
+    ring1.innerHTML = `
+      <animate attributeName="r"             values="4;16;16"   dur="1.6s" begin="${delay1}" repeatCount="indefinite" calcMode="spline" keySplines="0.2 0 0.6 1;0.6 0 1 1"/>
+      <animate attributeName="opacity"       values="0.8;0;0"   dur="1.6s" begin="${delay1}" repeatCount="indefinite" calcMode="spline" keySplines="0.2 0 0.8 1;0 0 1 1"/>
+      <animate attributeName="stroke-width" values="1.5;0.4;0.4" dur="1.6s" begin="${delay1}" repeatCount="indefinite"/>`;
+
+    // Ring 2 — delayed clone for continuous feel
+    const ring2 = el('circle', { r: '3', fill: 'none', stroke: color, 'stroke-width': '1.2' });
+    ring2.innerHTML = `
+      <animate attributeName="r"             values="4;16;16"   dur="1.6s" begin="${delay2}" repeatCount="indefinite" calcMode="spline" keySplines="0.2 0 0.6 1;0.6 0 1 1"/>
+      <animate attributeName="opacity"       values="0.8;0;0"   dur="1.6s" begin="${delay2}" repeatCount="indefinite" calcMode="spline" keySplines="0.2 0 0.8 1;0 0 1 1"/>
+      <animate attributeName="stroke-width" values="1.5;0.4;0.4" dur="1.6s" begin="${delay2}" repeatCount="indefinite"/>`;
+
+    g.append(ring1, ring2, core);
+    return g;
+  }
+
+  // Earth indicator — cool blue-white, rings offset by 0.8s
+  const startHit = makeHitIndicator('rgba(148,163,184,0.9)', '0s', '0.8s');
+  svg.appendChild(startHit);
+
+  // Moon indicator — same palette, slightly offset so they feel independent
+  const endHit = makeHitIndicator('rgba(148,163,184,0.9)', '0.3s', '1.1s');
+  svg.appendChild(endHit);
 
   /* ── Distance badge ──────────────────────────────────────── */
   const badge = el('g', { id: 'em-badge', opacity: '0' });
@@ -144,7 +173,7 @@ export function initEarthMoonLine () {
   const topText = el('text', {
     fill: '#94a3b8',
     'font-family': 'Outfit,system-ui,sans-serif',
-    'font-size': '9.5', 'text-anchor': 'middle',
+    'font-size': '9.5', 'text-anchor': 'end',
   });
   topText.textContent = 'Earth  ↔  Moon';
 
@@ -161,7 +190,7 @@ export function initEarthMoonLine () {
     'font-family': 'Outfit,system-ui,sans-serif',
     'font-size': '7.8', 'text-anchor': 'middle',
   });
-  srcText.textContent = 'Meeus Astronomical Algorithms';
+  srcText.textContent = 'Meeus Astronomical Algorithms API';
 
   badge.append(bgRect, livePill, liveDot, liveLabel, topText, distText, srcText);
   svg.appendChild(badge);
@@ -188,7 +217,8 @@ export function initEarthMoonLine () {
 
     if (window.innerWidth < 768) {
       path.setAttribute('opacity', '0');
-      endDot.setAttribute('opacity', '0');
+      startHit.setAttribute('opacity', '0');
+      endHit.setAttribute('opacity', '0');
       badge.setAttribute('opacity', '0');
       return;
     }
@@ -205,36 +235,45 @@ export function initEarthMoonLine () {
 
     if (mR.width < 4 || mR.height < 4) {
       path.setAttribute('opacity', '0');
-      endDot.setAttribute('opacity', '0');
+      startHit.setAttribute('opacity', '0');
+      endHit.setAttribute('opacity', '0');
       badge.setAttribute('opacity', '0');
       return;
     }
 
     /* ── Anchor points ───────────────────────────────────── */
+    const LINE_SHIFT = 100;   // shift entire curve right
     const earthR  = Math.min(gR.width, gR.height) * 0.42;
     const globeCX = gR.left + gR.width  * 0.5;
     const globeCY = gR.top  + gR.height * 0.5 + sy;
-    const x1 = globeCX + earthR * 0.58;
+    const x1 = globeCX + earthR * 0.58 + LINE_SHIFT;
     const y1 = globeCY + earthR * 0.46;
 
     const moonR  = mR.height * 0.46;
     const moonCX = mR.left + mR.width  * 0.5;       // geometric centre of sphere
     const moonCY = mR.top  + mR.height * 0.5 + sy;  // document y
 
-    // Endpoint: geometric centre-top of sphere, 50 px into surface
-    const x2 = moonCX;
-    const y2 = moonCY - moonR + 50;
+    // Endpoint: geometric centre-top of sphere, offset +120 right, -50 up
+    const x2 = moonCX + 270;
+    const y2 = moonCY - moonR + 50 - 50;
 
     const dy = y2 - y1;
 
     /* ── Control points ──────────────────────────────────── */
-    // cp1: start curving right, clearing the info panel
+    // cp1: curve rightward past the info panel, stay near top
     const CLEAR = 80;
-    const cp1x  = Math.max(iR.right + CLEAR, x1 + (x2 - x1) * 0.55);
-    const cp1y  = y1 + dy * 0.18;
-    // cp2: approach the moon from slightly above-left
-    const cp2x  = x2 - 30;
-    const cp2y  = iR.top + iR.height * 0.5 + sy;
+    const cp1x  = Math.max(iR.right + CLEAR, x1 + (x2 - x1) * 0.45);
+    const cp1y  = y1 + dy * 0.10;
+    // cp2: arrive at moon from directly above — no rightward overshoot
+    const cp2x  = x2;
+    const cp2y  = y2 - Math.abs(dy) * 0.35;
+
+    /* ── Keep SVG height = actual document height ───────── */
+    const footer = document.querySelector('footer');
+    if (footer) {
+      const docH = footer.getBoundingClientRect().bottom + sy;
+      svg.style.height = Math.ceil(docH) + 'px';
+    }
 
     /* ── Path string ─────────────────────────────────────── */
     const d = `M ${x1.toFixed(1)} ${y1.toFixed(1)} ` +
@@ -247,13 +286,14 @@ export function initEarthMoonLine () {
     const lineOp = Math.min(1, Math.max(0, (sy - 300) / 50));
     path.setAttribute('opacity', lineOp.toFixed(3));
 
-    /* ── Endpoint dot ────────────────────────────────────── */
-    endDot.setAttribute('cx', x2.toFixed(1));
-    endDot.setAttribute('cy', y2.toFixed(1));
-    endDot.setAttribute('opacity', lineOp.toFixed(3));
+    /* ── Hit indicators ──────────────────────────────────── */
+    startHit.setAttribute('transform', `translate(${x1.toFixed(1)},${y1.toFixed(1)})`);
+    startHit.setAttribute('opacity', lineOp.toFixed(3));
+    endHit.setAttribute('transform', `translate(${x2.toFixed(1)},${y2.toFixed(1)})`);
+    endHit.setAttribute('opacity', lineOp.toFixed(3));
 
-    /* ── Flowing dash ────────────────────────────────────── */
-    dashFlow += 0.55;
+    /* ── Flowing dash — runs from Earth toward Moon ──────── */
+    dashFlow -= 0.55;
     path.setAttribute('stroke-dashoffset', (dashFlow % 16).toFixed(2));
 
     /* ── Badge: rides viewport center from MIN_T to MID_T ──
@@ -283,7 +323,7 @@ export function initEarthMoonLine () {
     liveLabel.setAttribute('x', (bLeft + 24).toFixed(1));
     liveLabel.setAttribute('y', (bTop + 20).toFixed(1));
 
-    topText.setAttribute('x', (mx + 24).toFixed(1));
+    topText.setAttribute('x', (bLeft + BADGE_W - 9).toFixed(1));
     topText.setAttribute('y', (bTop + 20).toFixed(1));
 
     distText.setAttribute('x', mx.toFixed(1));

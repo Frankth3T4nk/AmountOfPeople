@@ -17,6 +17,7 @@ const MOON_SPEED  = 0.00025;
 const CAM_Z       = 12;
 const FOV         = 65;
 const BLEED_PX    = 400;
+const BLEED_LEFT  = 300;
 const LERP_SLOW   = 0.035;
 
 /* ── Orbit constants ────────────────────────────────────── */
@@ -63,6 +64,7 @@ let _moonRotY       = 0;
 let _targetMoonRotY = 0;
 
 function _lerp(a, b, t) { return a + (b - a) * t; }
+
 
 
 /**
@@ -197,10 +199,16 @@ export function initMoon() {
   function resize() {
     const parent = canvas.parentElement;
     if (!parent) return;
-    const w = parent.clientWidth + BLEED_PX;
+    const origW = parent.clientWidth + BLEED_PX;   // original canvas width (no left bleed)
+    const totalW = origW + BLEED_LEFT;              // extended canvas width
     const h = parent.clientHeight;
-    renderer.setSize(w, h);
-    camera.aspect = w / h;
+    renderer.setSize(totalW, h);
+    canvas.style.left = `-${BLEED_LEFT}px`;
+    // setViewOffset: project the scene as if the canvas were origW wide,
+    // but render starting BLEED_LEFT pixels to the LEFT of that.
+    // This gives the same moon position/shape while revealing extra space on the left.
+    camera.setViewOffset(origW, h, -BLEED_LEFT, 0, totalW, h);
+    camera.aspect = origW / h;
     camera.fov    = FOV;
     camera.updateProjectionMatrix();
   }
@@ -383,41 +391,42 @@ function createOrion() {
   cap.position.y = -0.40;
   group.add(cap);
 
-  // ── Solar wings — 4 arms, each with two panels connected by booms ──
-  // rotation.set(π/2, ry, 0) lays the cylinder along the radial direction:
-  //   R_x(π/2) maps cylinder-Y → world-Z, then R_y(ry) maps Z → (sin ry, 0, cos ry).
+  // ── Solar wings — 4 arms in X pattern (45° offset), panels tilted 20° ──
+  // X pattern (π/4 offset) looks far better than + pattern from any viewing angle.
+  // Each panel tilts 20° around its arm axis (solar-tracking tilt) so it catches light.
   for (let i = 0; i < 4; i++) {
-    const ry = (i / 4) * Math.PI * 2;
-    const dx = Math.sin(ry), dz = Math.cos(ry);
+    const ry   = (i / 4) * Math.PI * 2 + Math.PI / 4;  // X shape: 45°, 135°, 225°, 315°
+    const dx   = Math.sin(ry), dz = Math.cos(ry);
+    const tilt = Math.PI / 9;   // ~20° solar-tracking tilt around the arm
 
-    // Root boom: SM body edge (r≈0.30) to inner panel centre (r=0.62), length 0.32
+    // Root boom
     const rootBoom = new THREE.Mesh(
       new THREE.CylinderGeometry(0.022, 0.022, 0.32, 6), alum);
     rootBoom.rotation.set(Math.PI / 2, ry, 0);
     rootBoom.position.set(dx * 0.46, -0.04, dz * 0.46);
     group.add(rootBoom);
 
-    // Inner solar panel
+    // Inner solar panel — tilted around arm axis
     const inner = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.26, 0.012), solar);
     inner.position.set(dx * 0.62, -0.04, dz * 0.62);
-    inner.rotation.y = ry;
+    inner.rotation.set(tilt, ry, 0);
     group.add(inner);
 
-    // Link boom: inner panel centre (r=0.62) to outer panel centre (r=1.28), length 0.66
+    // Link boom
     const linkBoom = new THREE.Mesh(
       new THREE.CylinderGeometry(0.018, 0.018, 0.66, 6), alum);
     linkBoom.rotation.set(Math.PI / 2, ry, 0);
     linkBoom.position.set(dx * 0.95, -0.04, dz * 0.95);
     group.add(linkBoom);
 
-    // Outer solar panel
+    // Outer solar panel — same tilt
     const outer = new THREE.Mesh(new THREE.BoxGeometry(0.60, 0.24, 0.012), solar);
     outer.position.set(dx * 1.28, -0.04, dz * 1.28);
-    outer.rotation.y = ry;
+    outer.rotation.set(tilt, ry, 0);
     group.add(outer);
   }
 
-  group.scale.setScalar(0.34);
+  group.scale.setScalar(0.255);
   return group;
 }
 

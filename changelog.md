@@ -884,3 +884,13 @@ Fade band: `EARTH_R` (alpha=0) → `EARTH_R × 1.18` (alpha=1). The ~18° arc th
 | File | What changed |
 |------|-------------|
 | `static/js/moon.js` | `createOrion()`: silver SM, double-panel wings, scale 0.50; `createApollo()`: copper-bronze SM, prominent bell, scale 0.34 |
+
+---
+
+### 2026-04-10 — Earth–Moon Dashed Line: Perspective Dots, Direction Reversal, Visual Polish
+
+**Changes**:
+
+| File | What changed |
+|------|-------------|
+| `static/js/earth-moon-line.js` | **Dot at Earth**: new `startDot` circle with radial gradient (`em-earth-dot`) lit top-left, matching the globe's sun position. **Dot at Moon**: `endDot` uses radial gradient (`em-moon-dot`) lit top-right, matching the Three.js moon scene sun at `(-9, 1.5, 3)`. Both gradients shade white → slate-blue to give a 3D sphere-on-surface illusion. Shadow ellipse under moon dot removed (no longer needed; gradient provides the depth cue). **Dash direction reversed**: `dashFlow` now decrements (`-= 0.55`) so dashes flow from Earth toward Moon. **Endpoint shifted**: `x2 = moonCX + 120`, `y2 = moonCY - moonR` (top surface, no extra offset). **Line color**: `#94a3b8`. **"Earth ↔ Moon" right-aligned** in badge (`text-anchor: end`). **Source text** updated to "Meeus Astronomical Algorithms API". |
