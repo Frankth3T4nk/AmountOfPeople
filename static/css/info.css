@@ -12,14 +12,14 @@
 }
 
 .info-heading {
-  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-size: 20px;
   font-weight: 700;
   color: #fff;
   margin-bottom: 1.25rem;
 }
 
 .info-body {
-  font-size: clamp(0.95rem, 1.6vw, 1.1rem);
+  font-size: 16px;
   line-height: 1.75;
   color: #64748b;
 }

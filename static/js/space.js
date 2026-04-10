@@ -3,70 +3,42 @@
  *
  * Fetches and displays the people currently in space.
  *
- * API: Launch Library 2 (The Space Devs)
- *   https://ll.thespacedevs.com/2.2.0/astronaut/?in_space=true
- *   - Free, no API key, CORS-open
- *   - Returns all astronauts currently in space with name + agency
+ * Data source: /api/crew  (server-side proxy → corquaid.github.io)
+ *   corquaid.github.io is a GitHub Pages CDN — no rate limits.
+ *   Payload: { number, people: [{name, agency, spacecraft, iss, ...}] }
  *
- * Craft assignment (inferred from agency):
- *   CNSA                       → Tiangong space station
- *   NASA / ESA / JAXA / CSA / RFSA / others → International Space Station
- *
- * Refresh: every 5 minutes (crew rotations are infrequent)
+ * Reliability:
+ *   - Server caches the upstream response for 15 min (see server.js).
+ *   - Successful results are persisted to localStorage (6 h TTL) so the
+ *     section renders immediately on every page load, even offline.
+ *   - On fetch error the last known data stays on screen (no blank state).
  */
 
-const API_URL    = 'https://ll.thespacedevs.com/2.2.0/astronaut/?in_space=true&limit=50&format=json';
-const REFRESH_MS = 5 * 60 * 1000;
+const CREW_URL   = '/api/crew';
+const REFRESH_MS = 15 * 60 * 1000;
+const CACHE_KEY  = 'space_crew_cache_v4';
+const CACHE_TTL  = 6 * 60 * 60 * 1000;
 
-/* Known non-human entries in the dataset — skip these */
 const SKIP_NAMES = new Set(['starman']);
 
-/* Craft config keyed by CSS modifier */
-const CRAFTS = {
-  iss: {
-    label:   'Int\'l Space Station',
-    emoji:   '🛸',
-    mod:     'iss',
-    agencies: null, // catch-all
-  },
-  tiangong: {
-    label:   'Tiangong',
-    emoji:   '🚀',
-    mod:     'tiangong',
-    agencies: new Set(['cnsa', 'cmsa']),
-  },
-};
-
-function getCraft(agencyAbbrev) {
-  const key = (agencyAbbrev || '').toLowerCase();
-  if (CRAFTS.tiangong.agencies.has(key)) return 'tiangong';
-  return 'iss';
+/* ── localStorage cache ─────────────────────────────────── */
+function _saveCache(people) {
+  try { localStorage.setItem(CACHE_KEY, JSON.stringify({ people, ts: Date.now() })); }
+  catch { /* storage full / private mode */ }
+}
+function _loadCache() {
+  try {
+    const c = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+    return c && (Date.now() - c.ts < CACHE_TTL) ? c : null;
+  } catch { return null; }
 }
 
-/* ── Duration parser ISO 8601 → human readable ──────────── */
-function parseTimeInSpace(iso) {
-  if (!iso) return null;
-  const m = iso.match(/P(?:(\d+)D)?T(?:(\d+)H)?(?:(\d+)M)?/);
-  if (!m) return null;
-  const days  = parseInt(m[1] || '0', 10);
-  const hours = parseInt(m[2] || '0', 10);
-  if (days >= 1) return `${days}d ${hours}h`;
-  return `${hours}h`;
-}
-
-/* ── DOM refs ───────────────────────────────────────────── */
-const countEl      = document.getElementById('space-number');
-const labelEl      = document.getElementById('space-count-label');
-const craftsEl     = document.getElementById('space-crafts');
-const updatedEl    = document.getElementById('space-updated');
-const refreshBtn   = document.getElementById('space-refresh-btn');
-
-/* ── Fetch ──────────────────────────────────────────────── */
-async function fetchAstros() {
-  const res = await fetch(API_URL, { signal: AbortSignal.timeout(8000) });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
-}
+/* ── DOM refs ────────────────────────────────────────────── */
+const countEl    = document.getElementById('space-number');
+const labelEl    = document.getElementById('space-count-label');
+const craftsEl   = document.getElementById('space-crafts');
+const updatedEl  = document.getElementById('space-updated');
+const refreshBtn = document.getElementById('space-refresh-btn');
 
 /* ── Render helpers ─────────────────────────────────────── */
 function renderLoading() {
@@ -76,89 +48,94 @@ function renderLoading() {
       Fetching live data…
     </div>`;
 }
-
 function renderError(msg) {
-  if (craftsEl) craftsEl.innerHTML = `
-    <div class="space-error">
-      <div class="space-error-icon">📡</div>
-      ${msg || 'Could not reach the API. Will retry automatically.'}
-    </div>`;
-  if (countEl) countEl.textContent = '—';
+  if (craftsEl && !craftsEl.querySelector('.craft-card')) {
+    craftsEl.innerHTML = `
+      <div class="space-error">
+        <div class="space-error-icon">📡</div>
+        ${msg || 'Could not reach the API. Will retry automatically.'}
+      </div>`;
+    if (countEl) countEl.textContent = '—';
+  }
 }
 
-function renderData(data) {
-  /* Filter out known non-human joke entries */
-  const people = (data.results || []).filter(
-    a => !SKIP_NAMES.has(a.name.toLowerCase().trim())
-  );
-
+/**
+ * Render crew cards.
+ * @param {Array<{name,agency,spacecraft,iss}>} people
+ */
+function renderData(people) {
   const total = people.length;
-
-  /* Big count */
   if (countEl) countEl.textContent = total;
-  if (labelEl) {
-    labelEl.textContent =
-      total === 1
-        ? 'person currently orbiting Earth'
-        : 'people currently orbiting Earth';
-  }
+  if (labelEl) labelEl.textContent = total === 1 ? 'person currently in space' : 'people currently in space';
 
-  /* Group by craft */
-  const groups = { iss: [], tiangong: [] };
+  // Group by spacecraft
+  const groups = {};
   for (const p of people) {
-    const craft = getCraft(p.agency?.abbrev);
-    groups[craft].push(p);
+    const key = p.spacecraft || 'Unknown';
+    if (!groups[key]) groups[key] = { members: [], isISS: !!p.iss };
+    groups[key].members.push(p);
   }
 
-  /* Render craft cards — skip empty groups */
-  const cards = Object.entries(groups)
-    .filter(([, members]) => members.length > 0)
-    .map(([craftKey, members]) => {
-      const cfg  = CRAFTS[craftKey];
-      const noun = members.length === 1 ? 'person' : 'people';
+  // Sort: ISS first, then alphabetically (puts Tiangong / Shenzhou together)
+  const sortedKeys = Object.keys(groups).sort((a, b) => {
+    if (groups[a].isISS && !groups[b].isISS) return -1;
+    if (!groups[a].isISS && groups[b].isISS) return 1;
+    return a.localeCompare(b);
+  });
 
-      const astronautRows = members.map(p => {
-        const duration = parseTimeInSpace(p.time_in_space);
-        const agency   = p.agency?.abbrev ? `<span style="opacity:.45;font-size:.78em">${p.agency.abbrev}</span>` : '';
-        const time     = duration ? `<span style="opacity:.38;font-size:.78em;margin-left:auto">${duration}</span>` : '';
-        return `<li class="astronaut-item">
-                  ${p.name}${agency ? ' ' + agency : ''}${time}
-                </li>`;
-      }).join('');
+  const cards = sortedKeys.map(spacecraft => {
+    const { members, isISS } = groups[spacecraft];
+    const noun = members.length === 1 ? 'person' : 'people';
 
-      return `
-        <div class="craft-card craft-card--${cfg.mod}">
-          <div class="craft-card-header">
-            <div class="craft-icon">${cfg.emoji}</div>
-            <div>
-              <div class="craft-name craft-accent">${cfg.label}</div>
-              <div class="craft-count">${members.length}&nbsp;${noun} aboard</div>
-            </div>
-          </div>
-          <ul class="astronaut-list">${astronautRows}</ul>
-        </div>`;
+    const isTiangong = spacecraft.toLowerCase().includes('shenzhou') ||
+                       spacecraft.toLowerCase().includes('tiangong');
+    const mod   = isISS ? 'iss' : isTiangong ? 'tiangong' : 'other';
+    const emoji = isISS ? '🛸' : isTiangong ? '🚀' : '🌙';
+    const stationLabel = isISS ? "Int'l Space Station" : isTiangong ? 'Tiangong' : spacecraft;
+
+    const rows = members.map(p => {
+      const agencySpan = p.agency
+        ? `<span style="opacity:.45;font-size:.78em">${p.agency}</span>` : '';
+      return `<li class="astronaut-item">${p.name}${agencySpan ? ' ' + agencySpan : ''}</li>`;
     }).join('');
 
-  if (craftsEl) craftsEl.innerHTML = cards || '<div class="space-error">No crew data available.</div>';
+    return `
+      <div class="craft-card craft-card--${mod}">
+        <div class="craft-card-header">
+          <div class="craft-icon">${emoji}</div>
+          <div>
+            <div class="craft-name craft-accent">${spacecraft}</div>
+            <div class="craft-count">${stationLabel} · ${members.length}&nbsp;${noun} aboard</div>
+          </div>
+        </div>
+        <ul class="astronaut-list">${rows}</ul>
+      </div>`;
+  }).join('');
 
-  /* Timestamp */
-  if (updatedEl) {
-    updatedEl.textContent = new Date().toLocaleTimeString([], {
-      hour: '2-digit', minute: '2-digit', second: '2-digit',
-    });
-  }
+  if (craftsEl) craftsEl.innerHTML = cards || '<div class="space-error">No crew data available.</div>';
+  if (updatedEl) updatedEl.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
 
 /* ── Main refresh ───────────────────────────────────────── */
 async function refresh(showSpinner = false) {
-  if (showSpinner) renderLoading();
+  const hasContent = () => !!(craftsEl && craftsEl.querySelector('.craft-card'));
+  if (showSpinner && !hasContent()) renderLoading();
   if (refreshBtn) refreshBtn.classList.add('spinning');
 
   try {
-    const data = await fetchAstros();
-    renderData(data);
-  } catch (err) {
-    renderError('Could not reach the API. Will retry automatically.');
+    const r = await fetch(CREW_URL, { signal: AbortSignal.timeout(10000) });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const data = await r.json();
+    if (data.error) throw new Error(data.error);
+
+    const people = (data.people || []).filter(
+      p => !SKIP_NAMES.has((p.name || '').toLowerCase().trim())
+    );
+
+    _saveCache(people);
+    renderData(people);
+  } catch {
+    if (!hasContent()) renderError('Could not reach the API. Will retry automatically.');
   } finally {
     if (refreshBtn) refreshBtn.classList.remove('spinning');
   }
@@ -168,7 +145,10 @@ async function refresh(showSpinner = false) {
 export function initSpace() {
   if (!craftsEl) return;
 
-  refresh(true);
+  const cached = _loadCache();
+  if (cached?.people) renderData(cached.people);
+
+  refresh(/* showSpinner */ !cached);
   setInterval(() => refresh(false), REFRESH_MS);
   refreshBtn?.addEventListener('click', () => refresh(true));
 }

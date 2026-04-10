@@ -16,14 +16,18 @@ import { initSpace                           } from './space.js';
 import { initSelector                        } from './selector.js';
 import { getCountryCurrentPop                } from './countries.js';
 import { getCurrentPop as getWorldPop        } from './population.js';
-import { initShuttle                         } from './shuttle.js';
+import { initMoon                           } from './moon.js';
+import { initStars                          } from './stars.js';
+import { initEarthMoonLine                  } from './earth-moon-line.js';
 
 /* ── Boot ───────────────────────────────────────────────── */
+initStars();          // parallax starfield — rendered before everything else
+initEarthMoonLine();  // dashed Earth ↔ Moon connector, appears on scroll
 initGlobe();
 initCounter();
 initUI();
 initSpace();
-initShuttle();
+initMoon();
 
 /* ── Selector wires into globe + counter ────────────────── */
 initSelector(onCountryChange);

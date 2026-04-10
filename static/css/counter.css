@@ -6,8 +6,8 @@
 
      #counter
        .digit-wrapper          ← clips to exactly 1 digit tall
-         .digit-reel           ← scrolls vertically (0→9→0…)
-           .digit-item × 20   ← 0 1 2 3 4 5 6 7 8 9  (×2 for wrap)
+         .digit-reel           ← scrolls vertically, forward or backward
+           .digit-item × 30   ← 0…9 × 3 sets (middle set is live window)
        .digit-sep              ← comma / period
    ═══════════════════════════════════════════════════════════ */
 
@@ -52,8 +52,8 @@
   display: flex;
   flex-direction: column;
 
-  /* Rolling animation — matches JS snap timing */
-  transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+  /* Rolling animation — 0.30 s keeps up with ~222 ms birth events */
+  transition: transform 0.30s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: transform;
 }
 

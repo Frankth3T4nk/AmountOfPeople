@@ -5,25 +5,76 @@
 #space {
   position: relative;
   z-index: 10;
-  padding: 5rem 1.5rem 6rem;
-  /* Subtle gradient to differentiate from the Earth section */
+  padding: 5rem 0.5rem 6rem 1.5rem;
+  overflow: visible; /* moon bleeds off right edge; body clips horizontally */
   background: linear-gradient(
     to bottom,
-    #020617 0%,
-    rgba(15, 10, 40, 0.6) 40%,
-    #020617 100%
+    transparent 0%,
+    rgba(15, 10, 40, 0.35) 40%,
+    transparent 100%
   );
 }
 
+/* Radial violet glow — shifted right toward the moon column */
+#space-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 60% 70% at 78% 55%,
+    rgba(139, 92, 246, 0.10) 0%,
+    transparent 68%
+  );
+}
+
+/* ── Two-column layout ──────────────────────────────────── */
 .space-inner {
-  max-width: 56rem;
+  position: relative;
+  z-index: 10;
+  max-width: 78rem;
   margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 2rem;
+  align-items: center;
+}
+
+/* Left column */
+.space-content {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Right column: moon canvas */
+.space-moon-col {
+  position: relative;
+  min-height: 1050px;
+  overflow: visible;
+}
+
+#moon-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  /* width/height set programmatically by Three.js renderer.setSize() */
+}
+
+/* Mobile: single column, moon below content */
+@media (max-width: 767px) {
+  .space-inner {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .space-moon-col {
+    min-height: 630px;
+  }
 }
 
 /* ── Section header ─────────────────────────────────────── */
 .space-header {
-  text-align: center;
-  margin-bottom: 3rem;
+  text-align: left;
+  margin-bottom: 2.5rem;
 }
 
 .space-header-tag {
@@ -70,8 +121,8 @@
 
 /* ── Big count ──────────────────────────────────────────── */
 .space-count-wrap {
-  text-align: center;
-  margin-bottom: 3rem;
+  text-align: left;
+  margin-bottom: 2.5rem;
 }
 
 .space-count-number {
@@ -109,9 +160,6 @@
 
 @media (min-width: 560px) {
   .space-crafts { grid-template-columns: repeat(2, 1fr); }
-}
-@media (min-width: 900px) {
-  .space-crafts { grid-template-columns: repeat(3, 1fr); }
 }
 
 /* ── Individual craft card ──────────────────────────────── */
@@ -222,7 +270,7 @@
 .space-meta {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 1.5rem;
   flex-wrap: wrap;
   font-size: 0.75rem;

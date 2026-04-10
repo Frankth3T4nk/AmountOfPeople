@@ -24,9 +24,7 @@
 
 @media (min-width: 768px) {
   .footer-inner {
-    flex-direction: row;
-    justify-content: space-between;
-    text-align: left;
+    justify-content: center;
   }
 }
 

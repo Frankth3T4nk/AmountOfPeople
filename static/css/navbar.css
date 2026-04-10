@@ -7,12 +7,7 @@
   top: 0; left: 0; right: 0;
   z-index: 50;
   padding: 1.35rem 0;
-  transition: padding 0.4s ease, box-shadow 0.4s ease;
-}
-
-#navbar.scrolled {
-  padding: 0.7rem 0;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+  transition: box-shadow 0.4s ease;
 }
 
 .nav-inner {
@@ -28,39 +23,13 @@
 .nav-logo {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
   text-decoration: none;
 }
 
-.nav-logo-icon {
-  position: relative;
-  width: 2rem;
-  height: 2rem;
-  flex-shrink: 0;
-}
-
-.nav-logo-glow {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: var(--accent);
-  opacity: 0.18;
-  filter: blur(4px);
-  transition: opacity var(--transition-base);
-}
-.nav-logo:hover .nav-logo-glow { opacity: 0.4; }
-
-.nav-logo-svg { position: relative; display: block; }
-
-.nav-logo-text {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #fff;
-  letter-spacing: -0.01em;
-}
-.nav-logo-text em {
-  font-style: normal;
-  color: var(--accent-light);
+.nav-logo-img {
+  height: 24px;
+  width: auto;
+  display: block;
 }
 
 /* ── Centre nav links ─────────────────────────────── */

@@ -13,7 +13,7 @@
   --muted:           #94a3b8;
   --border:          rgba(59, 130, 246, 0.14);
 
-  --font:            'Inter', system-ui, sans-serif;
+  --font:            'Outfit', system-ui, sans-serif;
 
   --ease-out-expo:   cubic-bezier(0.16, 1, 0.3, 1);
   --ease-out-spring: cubic-bezier(0.22, 1, 0.36, 1);
@@ -43,10 +43,6 @@ body {
   overflow-x: hidden;
 }
 
-/* ── Scrollbar ─────────────────────────────────────────── */
-::-webkit-scrollbar        { width: 5px; }
-::-webkit-scrollbar-track  { background: var(--bg); }
-::-webkit-scrollbar-thumb  { background: var(--accent); border-radius: 3px; }
 ::selection                { background: var(--accent-glow); color: #fff; }
 
 /* ── Shared utility classes ────────────────────────────── */
