@@ -57,6 +57,7 @@
   top: 0;
   left: 0;
   display: block;
+  z-index: -1;
   /* width/height set programmatically by Three.js renderer.setSize() */
 }
 
@@ -108,8 +109,8 @@
 }
 
 .space-subheading {
-  font-size: 0.95rem;
-  color: #475569;
+  font-size: 0.8rem;
+  color: #94A3B8;
 }
 .space-subheading a {
   color: #a78bfa;

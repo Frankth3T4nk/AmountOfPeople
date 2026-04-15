@@ -110,6 +110,85 @@ function initFooter() {
   if (el) el.textContent = new Date().getFullYear();
 }
 
+/* ── Stat → info dashed connectors ────────────────────── */
+function initStatConnectors() {
+  const wrap    = document.getElementById('stat-info-wrap');
+  const svg     = document.getElementById('stat-connectors');
+  const births  = document.getElementById('stat-births');
+  const deaths  = document.getElementById('stat-deaths');
+  const heading = document.querySelector('#info .info-heading');
+  if (!wrap || !svg || !births || !deaths || !heading) return;
+
+  const NS  = 'http://www.w3.org/2000/svg';
+  const col = 'rgba(148,163,184,0.55)';
+
+  // Create persistent SVG elements once
+  const pathB = document.createElementNS(NS, 'path');
+  const pathD = document.createElementNS(NS, 'path');
+  const dotB  = document.createElementNS(NS, 'circle');
+  const dotD  = document.createElementNS(NS, 'circle');
+  const dotT  = document.createElementNS(NS, 'circle');
+
+  [pathB, pathD].forEach(p => {
+    p.setAttribute('fill',             'none');
+    p.setAttribute('stroke',           col);
+    p.setAttribute('stroke-width',     '1.5');
+    p.setAttribute('stroke-dasharray', '5 11');
+    p.setAttribute('stroke-linecap',   'round');
+  });
+  [dotB, dotD, dotT].forEach(c => {
+    c.setAttribute('r',    '2.5');
+    c.setAttribute('fill', col);
+  });
+
+  svg.append(pathB, pathD, dotB, dotD, dotT);
+
+  // Start points: bottom of the stat labels ("Births per second" / "Deaths per second")
+  const labelB = births.closest('.stat-item').querySelector('.stat-label');
+  const labelD = deaths.closest('.stat-item').querySelector('.stat-label');
+
+  function updatePositions() {
+    const wr  = wrap.getBoundingClientRect();
+    const rel = el => {
+      const b = el.getBoundingClientRect();
+      return { cx: b.left - wr.left + b.width / 2, bot: b.bottom - wr.top,
+               x:  b.left - wr.left, y: b.top - wr.top, w: b.width };
+    };
+
+    const bR = rel(labelB);
+    const dR = rel(labelD);
+    const hR = rel(heading);
+
+    const bx = bR.cx,           by = bR.bot - 14;
+    const dx = dR.cx,           dy = dR.bot - 14;
+    const tx = hR.x + hR.w / 2, ty = hR.y - 30;
+
+    const midY = (Math.max(by, dy) + ty) / 2;
+
+    pathB.setAttribute('d', `M${bx},${by} C${bx},${midY} ${tx},${midY} ${tx},${ty}`);
+    pathD.setAttribute('d', `M${dx},${dy} C${dx},${midY} ${tx},${midY} ${tx},${ty}`);
+
+    dotB.setAttribute('cx', bx); dotB.setAttribute('cy', by);
+    dotD.setAttribute('cx', dx); dotD.setAttribute('cy', dy);
+    dotT.setAttribute('cx', tx); dotT.setAttribute('cy', ty);
+  }
+
+  // Animated flowing dash — same speed as earth-moon line (dashFlow -= 0.55, period 16)
+  let dashFlow = 0;
+  function tick() {
+    dashFlow -= 0.55;
+    const offset = (dashFlow % 16).toFixed(2);
+    pathB.setAttribute('stroke-dashoffset', offset);
+    pathD.setAttribute('stroke-dashoffset', offset);
+    requestAnimationFrame(tick);
+  }
+
+  updatePositions();
+  tick();
+
+  window.addEventListener('resize', updatePositions, { passive: true });
+}
+
 /* ── Public entry point ────────────────────────────────── */
 export function initUI() {
   initBgStars();
@@ -117,4 +196,5 @@ export function initUI() {
   initScrollReveal();
   initStats();
   initFooter();
+  initStatConnectors();
 }

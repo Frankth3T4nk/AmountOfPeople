@@ -14,7 +14,8 @@
  *   - On fetch error the last known data stays on screen (no blank state).
  */
 
-const CREW_URL   = '/api/crew';
+const CREW_URL_PROXY    = '/api/crew';
+const CREW_URL_DIRECT   = 'https://corquaid.github.io/international-space-station-APIs/JSON/people-in-space.json';
 const REFRESH_MS = 15 * 60 * 1000;
 const CACHE_KEY  = 'space_crew_cache_v4';
 const CACHE_TTL  = 6 * 60 * 60 * 1000;
@@ -123,7 +124,11 @@ async function refresh(showSpinner = false) {
   if (refreshBtn) refreshBtn.classList.add('spinning');
 
   try {
-    const r = await fetch(CREW_URL, { signal: AbortSignal.timeout(10000) });
+    // Try server-side proxy first; fall back to direct URL (works on static hosting)
+    let r = await fetch(CREW_URL_PROXY, { signal: AbortSignal.timeout(5000) }).catch(() => null);
+    if (!r || !r.ok) {
+      r = await fetch(CREW_URL_DIRECT, { signal: AbortSignal.timeout(10000) });
+    }
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const data = await r.json();
     if (data.error) throw new Error(data.error);

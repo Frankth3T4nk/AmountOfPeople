@@ -19,10 +19,12 @@ import { getCurrentPop as getWorldPop        } from './population.js';
 import { initMoon                           } from './moon.js';
 import { initStars                          } from './stars.js';
 import { initEarthMoonLine                  } from './earth-moon-line.js';
+import { initShuttle                        } from './shuttle.js';
 
 /* ── Boot ───────────────────────────────────────────────── */
 initStars();          // parallax starfield — rendered before everything else
 initEarthMoonLine();  // dashed Earth ↔ Moon connector, appears on scroll
+initShuttle();        // scroll-driven Space Shuttle arc from Earth to Moon
 initGlobe();
 initCounter();
 initUI();

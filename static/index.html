@@ -120,8 +120,10 @@
 
 
   <!-- ════════════════════════════════════════════════════
-       STATS
+       STATS + INFO  (wrapped so the connector SVG can span both)
   ════════════════════════════════════════════════════════ -->
+  <div id="stat-info-wrap">
+
   <section id="stats" aria-label="Global population statistics">
 
     <div class="stats-divider-wrap">
@@ -157,15 +159,15 @@
     <h2 class="info-heading fade-up">How is this calculated?</h2>
 
     <p class="info-body fade-up" style="transition-delay:.06s">
-      This counter is based on the
-      <em>UN World Population Prospects 2024</em>.
-      Using the midyear 2024 estimate of <strong>8.16 billion</strong>
-      as a baseline, the counter advances at a net rate of approximately
-      <strong>2.33 people per second</strong> — reflecting ~4.5 births
-      minus ~2.0 deaths every second, globally.
+      This counter is based on the UN World Population Prospects 2024. Using the midyear 2024 estimate of 8.16 billion as a baseline, the counter advances at a net rate of approximately 2.33 people per second — reflecting <span class="stat-value--green">~4.5 births</span> minus <span class="stat-value--red">~2.0 deaths</span> every second, globally.
     </p>
 
   </section>
+
+  <!-- Dashed connector lines from births/deaths stats → "How is this calculated?" -->
+  <svg id="stat-connectors" aria-hidden="true" focusable="false"></svg>
+
+  </div><!-- /#stat-info-wrap -->
 
 
 

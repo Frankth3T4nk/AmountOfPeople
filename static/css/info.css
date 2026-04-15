@@ -13,19 +13,18 @@
 
 .info-heading {
   font-size: 20px;
-  font-weight: 700;
+  font-weight: 500;
   color: #fff;
-  margin-bottom: 1.25rem;
 }
 
 .info-body {
   font-size: 16px;
-  line-height: 1.75;
+  line-height: 1.4;
   color: #64748b;
 }
 
-.info-body strong { color: #fff; font-weight: 600; }
-.info-body em     { font-style: normal; color: var(--accent-light); font-weight: 500; }
+.info-body em     { font-style: normal; color: #fff; font-weight: 500; }
+.info-body strong { color: var(--accent-light); font-weight: 600; }
 
 /* ── Three-card grid ────────────────────────────────────── */
 .info-cards {
